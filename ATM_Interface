@@ -1,0 +1,144 @@
+package _ATMinterface;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
+public class ATMinterface {
+	    private Map<Integer, Account> accounts;
+	    private Scanner scanner;
+
+	    public ATMinterface() {
+	        this.accounts = new HashMap<>();
+	        this.scanner = new Scanner(System.in);
+	    }
+
+	    public void initialize() {
+	        accounts.put(123456, new Account(123456, 1234, 1000));
+	        accounts.put(654321, new Account(654321, 4321, 2000));
+	        accounts.put(888513, new Account(888513, 1221, 10000));
+	        accounts.put(998593, new Account(998593, 2121, 40000));
+	        
+	    }
+
+	    public void displayMenu() {
+	        System.out.println("Welcome to the ATM Interface");
+	        System.out.println("1. Cash Withdrawal");
+	        System.out.println("2. Balance Checking");
+	        System.out.println("3. Deposit");
+	        System.out.println("4. Transfer");
+	        System.out.println("5. Exit");
+	        System.out.print("Enter your choice: ");
+	    }
+
+	    public void authenticateUser() {
+	        System.out.print("Enter your account number: ");
+	        int accNumber = scanner.nextInt();
+	        System.out.print("Enter your ATM PIN: ");
+	        int pin = scanner.nextInt();
+
+	        if (accounts.containsKey(accNumber)) {
+	            Account acc = accounts.get(accNumber);
+	            if (acc.getPin() == pin) {
+	                System.out.println("Authentication successful.");
+	                displayMenu();
+	                int choice = scanner.nextInt();
+	                performTransaction(choice, acc);
+	            } else {
+	                System.out.println("Invalid PIN. Please try again.");
+	            }
+	        } else {
+	            System.out.println("Account not found.");
+	        }
+	    }
+
+	    public void performTransaction(int choice, Account acc) {
+	        switch (choice) {
+	            case 1:
+	                System.out.print("Enter amount to withdraw: ");
+	                double amount = scanner.nextDouble();
+	                acc.withdraw(amount);
+	                break;
+	            case 2:
+	                System.out.println("Your balance is: " + acc.getBalance());
+	                break;
+	            case 3:
+	                System.out.print("Enter amount to deposit: ");
+	                amount = scanner.nextDouble();
+	                acc.deposit(amount);
+	                break;
+	            case 4:
+	                System.out.print("Enter account number to transfer to: ");
+	                int targetAcc = scanner.nextInt();
+	                System.out.print("Enter amount to transfer: ");
+	                amount = scanner.nextDouble();
+	                if (accounts.containsKey(targetAcc)) {
+	                    acc.transfer(accounts.get(targetAcc), amount);
+	                } else {
+	                    System.out.println("Target account not found.");
+	                }
+	                break;
+	            case 5:
+	                System.out.println("Thank you for using ATM. Bye-Have a good day!");
+	                System.exit(0);
+	                break;
+	            default:
+	                System.out.println("Invalid choice. Please try again.");
+	        }
+	        displayMenu();
+	        int newChoice = scanner.nextInt();
+	        performTransaction(newChoice, acc);
+	    }
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		ATMinterface atm = new ATMinterface();
+        atm.initialize();
+        atm.authenticateUser();
+    }
+}
+
+class Account {
+    private int accountNumber;
+    private int pin;
+    private double balance;
+
+    public Account(int accountNumber, int pin, double balance) {
+        this.accountNumber = accountNumber;
+        this.pin = pin;
+        this.balance = balance;
+    }
+
+    public int getAccountNumber() {
+        return accountNumber;
+    }
+
+    public int getPin() {
+        return pin;
+    }
+
+    public double getBalance() {
+        return balance;
+    }
+
+    public void withdraw(double amount) {
+        if (amount > balance) {
+            System.out.println("Insufficient balance.");
+        } else {
+            balance -= amount;
+            System.out.println("Withdrawal successful. Current balance: " + balance);
+        }
+    }
+
+    public void deposit(double amount) {
+        balance += amount;
+        System.out.println("Deposit successful. Current balance: " + balance);
+    }
+
+    public void transfer(Account target, double amount) {
+        if (amount > balance) {
+            System.out.println("Insufficient balance for transfer.");
+        } else {
+            balance -= amount;
+            target.deposit(amount);
+            System.out.println("Transfer successful. Current balance: " + balance);
+        }
+    }
+}
